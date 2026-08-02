@@ -130,6 +130,22 @@ makes no network calls**. It covers routing, persistence, per-user isolation,
 graceful degradation when extraction fails, and — most importantly — that memory
 written in one session is still there in the next.
 
+Two suites live here, and they are different tools:
+
+```bash
+.venv/bin/pytest --ignore=tests/evals   # the app
+.venv/bin/pytest tests/evals            # the eval harness itself
+```
+
+Tests assert deterministic behavior against fakes and are free. Evals score a
+real model and cost money. Because both are importable from pytest, that
+boundary is **enforced, not assumed**: an autouse fixture makes constructing a
+real model raise, so a careless test cannot quietly start billing on every run.
+The guard derives from `BaseException` rather than `Exception` — the eval runner
+deliberately catches every `Exception` so a broken run becomes data, and an
+ordinary error would be swallowed there and reported green. See
+`tests/test_boundary.py`.
+
 ## Evaluation
 
 Tests prove the plumbing is correct. They cannot tell you whether the *model* is

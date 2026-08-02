@@ -7,6 +7,53 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 
+from aimaestro import graph as graph_module
+
+
+class RealModelForbidden(BaseException):
+    """Raised when a test tries to reach a real provider.
+
+    Derives from BaseException, not Exception, on purpose: `evals.runner`
+    deliberately catches every Exception so a broken run becomes data rather
+    than a crash. That is right for evals and wrong here — it would swallow this
+    guard and let a money-spending test report green. BaseException sails
+    straight through, the same way pytest's own control-flow exceptions do.
+    """
+
+
+@pytest.fixture(autouse=True)
+def forbid_real_models(monkeypatch):
+    """Make it structurally impossible for the test suite to call a provider.
+
+    The test suite and the eval harness are different tools: tests assert
+    deterministic behavior against fakes, evals score a real model and cost
+    money. Both are importable from here, so without this guard a single
+    careless test — one that calls `evals.cli.main` with a key present — would
+    quietly start billing on every `pytest` run.
+
+    Real-model runs belong in `python -m evals`, and nowhere else.
+    """
+    _clear_model_cache()
+
+    def _forbidden(model_id, *args, **kwargs):
+        raise RealModelForbidden(
+            f"A test tried to build a real model ({model_id!r}). "
+            "Tests run against fakes; real-model runs belong in "
+            "`python -m evals`."
+        )
+
+    monkeypatch.setattr(graph_module, "init_chat_model", _forbidden)
+    yield
+    # Teardown runs before monkeypatch restores, so get_model may still be a
+    # test's plain stub with no cache to clear.
+    _clear_model_cache()
+
+
+def _clear_model_cache() -> None:
+    cache_clear = getattr(graph_module.get_model, "cache_clear", None)
+    if cache_clear is not None:
+        cache_clear()
+
 
 class FakeToolCallingModel(BaseChatModel):
     """Replays a scripted list of AIMessages, one per invocation.
