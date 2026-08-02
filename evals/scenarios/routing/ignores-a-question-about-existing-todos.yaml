@@ -1,0 +1,12 @@
+id: routing-ignores-a-question-about-existing-todos
+layer: routing
+description: >
+  Asking about the list is a read, not a write. Saving here would duplicate a
+  task the user already has.
+seed:
+  todo:
+    - {task: renew passport, status: not started}
+turns:
+  - what's on my list right now?
+expect:
+  routes: []

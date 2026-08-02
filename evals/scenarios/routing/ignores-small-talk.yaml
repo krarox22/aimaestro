@@ -1,0 +1,9 @@
+id: routing-ignores-small-talk
+layer: routing
+description: >
+  Nothing here is worth remembering. The prompt tells the model to lean toward
+  capturing tasks, so this is the scenario most likely to expose over-saving.
+turns:
+  - thanks, that's helpful
+expect:
+  routes: []

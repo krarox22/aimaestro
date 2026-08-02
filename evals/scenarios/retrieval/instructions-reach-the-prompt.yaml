@@ -1,0 +1,9 @@
+id: retrieval-instructions-reach-the-prompt
+layer: retrieval
+description: Learned preferences must be visible to the model on later turns.
+seed:
+  instructions: Always include an estimated time to complete
+turns:
+  - add something to my list
+expect:
+  prompt_contains: [estimated time to complete]

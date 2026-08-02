@@ -1,0 +1,17 @@
+id: integrity-updating-status-mid-list
+layer: integrity
+description: >
+  Patching a record in the middle of a list, where an off-by-one in patch
+  targeting would hit the wrong record.
+seed:
+  todo:
+    - {task: vet appointment, status: not started}
+    - {task: renew passport, status: not started}
+    - {task: file taxes, status: not started}
+turns:
+  - I've started working on the passport renewal
+expect:
+  changed_records: 1
+  unchanged: [vet appointment, file taxes]
+  field_values:
+    renew passport: {status: in progress}

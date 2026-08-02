@@ -23,6 +23,10 @@ from evals.scenarios import Scenario
 
 EVAL_USER = "eval-user"
 
+#: A model that keeps calling UpdateMemory forever would otherwise hang the run.
+#: Capping it turns a pathological loop into a recorded failure.
+RECURSION_LIMIT = 25
+
 #: Seeded records get predictable keys so the integrity scorer can compare a
 #: final record against exactly the record it started as.
 PROFILE_SEED_KEY = "seed-profile"
@@ -120,6 +124,7 @@ def run_scenario(
             config = {
                 "configurable": {"user_id": EVAL_USER, "thread_id": thread_id},
                 "callbacks": [recorder],
+                "recursion_limit": RECURSION_LIMIT,
             }
 
             for turn in scenario.turns:

@@ -1,0 +1,13 @@
+id: retrieval-profile-reaches-the-prompt
+layer: retrieval
+description: >
+  Memory that persists but never reaches the prompt is invisible to the user.
+  This checks the loading half of the loop, not the writing half.
+seed:
+  profile: {name: Kratika, location: Atlanta}
+  todo:
+    - {task: renew passport, status: not started}
+turns:
+  - hello again
+expect:
+  prompt_contains: [Kratika, Atlanta, renew passport]

@@ -11,12 +11,13 @@ dependencies = [
     "trustcall>=0.0.39",
     "langchain-google-genai>=4.3,<5",
     "python-dotenv>=1.0",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
 openai = ["langchain-openai>=1.0"]
 anthropic = ["langchain-anthropic>=1.0"]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "pytest-timeout>=2.3"]
 
 [project.scripts]
 aimaestro = "aimaestro.cli:main"
@@ -26,8 +27,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["aimaestro"]
+packages = ["aimaestro", "evals"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 filterwarnings = ["ignore::DeprecationWarning"]
+# No test should ever hang; a runaway agent loop must fail loudly instead.
+timeout = 60

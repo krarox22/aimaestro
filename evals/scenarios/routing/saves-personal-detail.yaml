@@ -1,0 +1,7 @@
+id: routing-saves-personal-detail
+layer: routing
+description: Personal information should land in the profile, not the todo list.
+turns:
+  - I'm Kratika and I live in Atlanta
+expect:
+  routes: [update_profile]

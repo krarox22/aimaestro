@@ -1,0 +1,19 @@
+id: integrity-completing-one-leaves-rest-intact
+layer: integrity
+description: >
+  The core promise of JSON-patch memory updates: marking one task done must not
+  rewrite, reword, or drop any other task. This is the scenario that catches a
+  long list being silently mangled.
+seed:
+  todo:
+    - {task: vet appointment, status: not started}
+    - {task: renew passport, status: not started}
+    - {task: file taxes, status: not started}
+turns:
+  - the vet appointment is done
+expect:
+  routes: [update_todos]
+  changed_records: 1
+  unchanged: [renew passport, file taxes]
+  field_values:
+    vet appointment: {status: done}

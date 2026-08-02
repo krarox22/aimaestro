@@ -108,6 +108,29 @@ def test_runs_are_isolated_from_each_other(fake_model, monkeypatch):
     assert len(second.final_memory["todo"]) == 1
 
 
+@pytest.mark.timeout(30)
+def test_runaway_save_loop_terminates(monkeypatch):
+    """A model that never stops calling UpdateMemory must fail, not hang.
+
+    The recursion cap is what makes an eval run bounded; without it one
+    pathological scenario stalls the whole dataset indefinitely.
+    """
+
+    def always_saving(model_id):
+        # A fresh instance per call, so its script never advances.
+        return FakeToolCallingModel(responses=[update_memory_call("todo")])
+
+    monkeypatch.setattr(graph_module, "get_model", always_saving)
+    monkeypatch.setattr(
+        graph_module,
+        "get_todo_extractor",
+        lambda model_id, listener=None: StubExtractor([ToDo(task="looping")]),
+    )
+    result = run_scenario(_scenario(turns=["go"]), model_id="fake:model")
+    assert result.error is not None
+    assert "recursion" in result.error.lower() or "limit" in result.error.lower()
+
+
 def test_error_is_recorded_not_raised(monkeypatch):
     def explode(model_id):
         raise RuntimeError("model unreachable")

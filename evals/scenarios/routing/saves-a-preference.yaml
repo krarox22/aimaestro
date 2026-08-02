@@ -1,0 +1,7 @@
+id: routing-saves-a-preference
+layer: routing
+description: A stated preference about list management should update instructions.
+turns:
+  - When you add tasks, always include an estimated time to complete
+expect:
+  routes: [update_instructions]

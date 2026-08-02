@@ -1,0 +1,13 @@
+id: integrity-adding-one-preserves-existing
+layer: integrity
+description: Inserting a new task must leave every existing task byte-identical.
+seed:
+  todo:
+    - {task: renew passport, status: not started}
+    - {task: file taxes, status: not started}
+turns:
+  - I also need to book a dentist appointment
+expect:
+  routes: [update_todos]
+  changed_records: 1
+  unchanged: [renew passport, file taxes]
